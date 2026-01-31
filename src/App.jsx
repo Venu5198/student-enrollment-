@@ -21,7 +21,6 @@ export default function App() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  // table features
   const [filterText, setFilterText] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -122,7 +121,7 @@ export default function App() {
   };
 
   const handleDelete = (id) => {
-    if (!globalThis.confirm("Delete this student?")) return;
+    if (!window.confirm("Delete this student?")) return;
 
     setStudents(students.filter((s) => s.studentId !== id));
 
@@ -170,9 +169,21 @@ export default function App() {
         isUpdateMode={isUpdateMode}
       />
 
-      {error && <p className="error">{error}</p>}
-      {message && <p className="success">{message}</p>}
+      {/* Message slot (prevents layout jump) */}
+      <div className="message-slot">
+        {error && <p className="error">{error}</p>}
+        {message && <p className="success">{message}</p>}
+      </div>
 
+      {/* Empty state */}
+      {students.length === 0 && (
+        <div className="empty-state">
+          <p>No students yet</p>
+          <span>Add a student to get started</span>
+        </div>
+      )}
+
+      {/* Table */}
       {students.length > 0 && (
         <div className="student-table">
           <h3>Enrolled Students</h3>
@@ -186,44 +197,46 @@ export default function App() {
             }}
           />
 
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Course</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedStudents.map((s) => (
-                <tr
-                  key={s.studentId}
-                  className="clickable-row"
-                  onClick={() => handleRowClick(s)}
-                >
-                  <td>{s.studentId}</td>
-                  <td>{s.name}</td>
-                  <td>{s.email}</td>
-                  <td>{s.phone}</td>
-                  <td>{s.course}</td>
-                  <td>
-                    <button
-                      className="delete-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDelete(s.studentId);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </td>
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Course</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {paginatedStudents.map((s) => (
+                  <tr
+                    key={s.studentId}
+                    className="clickable-row row-enter"
+                    onClick={() => handleRowClick(s)}
+                  >
+                    <td>{s.studentId}</td>
+                    <td>{s.name}</td>
+                    <td>{s.email}</td>
+                    <td>{s.phone}</td>
+                    <td>{s.course}</td>
+                    <td>
+                      <button
+                        className="delete-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDelete(s.studentId);
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           <div className="pagination">
             <button
@@ -234,11 +247,11 @@ export default function App() {
             </button>
 
             <span>
-              Page {currentPage} of {totalPages || 1}
+              Page {currentPage} of {totalPages}
             </span>
 
             <button
-              disabled={currentPage === totalPages || totalPages === 0}
+              disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((p) => p + 1)}
             >
               Next
