@@ -18,13 +18,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: npm
 
       - name: Install dependencies
-        working-directory: frontend
         run: npm install
 
-      - name: Build frontend
-        working-directory: frontend
+      - name: Build Vite app
         run: npm run build
 
       - name: Docker login
@@ -35,7 +34,7 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest frontend
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/student-frontend:latest .
 
       - name: Push Docker image
         run: |
